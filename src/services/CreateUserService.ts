@@ -1,3 +1,4 @@
+import AppError from '../errors/AppError';
 import { User } from '../models/User';
 import { UsersRepository } from '../repositories/UsersRepository';
 
@@ -9,10 +10,19 @@ interface IResquet {
 }
 
 class CreateUserService {
-  execute({ name, email, password, cpf }: IResquet): User {
-    const usersRepository = new UsersRepository();
+  constructor(private usersRepository: UsersRepository) {}
 
-    const user = usersRepository.create({ name, email, password, cpf });
+  execute({ name, email, password, cpf }: IResquet): User {
+    const userExist = this.usersRepository.findUserByCPFandEmail({
+      cpf,
+      email
+    });
+
+    if (userExist) {
+      throw new AppError('User already exist.');
+    }
+
+    const user = this.usersRepository.create({ name, email, password, cpf });
 
     return user;
   }
