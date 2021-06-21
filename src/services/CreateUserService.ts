@@ -1,5 +1,5 @@
+import { User } from '../entities/User';
 import AppError from '../errors/AppError';
-import { User } from '../models/User';
 import { UsersRepository } from '../repositories/UsersRepository';
 
 interface IResquet {
@@ -10,10 +10,10 @@ interface IResquet {
 }
 
 class CreateUserService {
-  constructor(private usersRepository: UsersRepository) {}
+  async execute({ name, email, password, cpf }: IResquet): Promise<User> {
+    const usersRepository = new UsersRepository();
 
-  execute({ name, email, password, cpf }: IResquet): User {
-    const userExist = this.usersRepository.findUserByCPFandEmail({
+    const userExist = await usersRepository.findUserByCPFandEmail({
       cpf,
       email
     });
@@ -22,7 +22,7 @@ class CreateUserService {
       throw new AppError('User already exist.');
     }
 
-    const user = this.usersRepository.create({ name, email, password, cpf });
+    const user = await usersRepository.create({ name, email, password, cpf });
 
     return user;
   }

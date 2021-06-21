@@ -1,4 +1,6 @@
-import { User } from '../models/User';
+import { getRepository, Repository } from 'typeorm';
+
+import { User } from '../entities/User';
 
 interface IUser {
   name: string;
@@ -13,28 +15,24 @@ interface IFindUser {
 }
 
 class UsersRepository {
-  private users: User[];
+  private repository: Repository<User>;
 
   constructor() {
-    this.users = [];
+    this.repository = getRepository(User);
   }
 
-  all(): User[] {
-    return this.users;
-  }
+  async create({ name, email, password, cpf }: IUser): Promise<User> {
+    const user = this.repository.create({ name, email, password, cpf });
 
-  create({ name, email, password, cpf }: IUser): User {
-    const user = new User(name, email, password, cpf);
-
-    this.users.push(user);
+    await this.repository.save(user);
 
     return user;
   }
 
-  findUserByCPFandEmail({ cpf, email }: IFindUser): User | undefined {
-    const user = this.users.find(
-      (item) => item.cpf === cpf || item.email === email
-    );
+  findUserByCPFandEmail({ cpf, email }: IFindUser): Promise<User | undefined> {
+    const user = this.repository.findOne({
+      where: [{ email }, { cpf }]
+    });
 
     return user;
   }
