@@ -1,3 +1,5 @@
+import { hash } from 'bcryptjs';
+
 import { User } from '../entities/User';
 import AppError from '../errors/AppError';
 import { UsersRepository } from '../repositories/UsersRepository';
@@ -22,7 +24,14 @@ class CreateUserService {
       throw new AppError('User already exist.');
     }
 
-    const user = await usersRepository.create({ name, email, password, cpf });
+    const hashedPassword = await hash(password, 8);
+
+    const user = await usersRepository.create({
+      name,
+      email,
+      password: hashedPassword,
+      cpf
+    });
 
     return user;
   }
