@@ -36,6 +36,14 @@ class UsersRepository {
 
     return user;
   }
+
+  findUserById(id: string): Promise<User | undefined> {
+    const user = this.repository.findOne({
+      where: { id }
+    });
+
+    return user;
+  }
 }
 
 export { UsersRepository };
