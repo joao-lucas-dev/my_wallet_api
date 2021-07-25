@@ -9,6 +9,12 @@ interface IReceipt {
   id?: string;
 }
 
+interface IGetReceipts {
+  user_id: string;
+  skip: any;
+  limit: any;
+}
+
 class ReceiptsRepository {
   private repository: Repository<Receipt>;
 
@@ -38,6 +44,32 @@ class ReceiptsRepository {
 
   async delete(id: string): Promise<void> {
     await this.repository.delete({ id });
+  }
+
+  async getAccountBalance(user_id: string): Promise<number> {
+    const receipts = await this.repository.find({
+      user_id
+    });
+
+    const accountBalance = receipts.reduce((acc, item) => {
+      return item.operation === 'income' ? acc + item.value : acc - item.value;
+    }, 0);
+
+    return accountBalance;
+  }
+
+  async getAllReceipts({
+    user_id,
+    skip,
+    limit
+  }: IGetReceipts): Promise<Receipt[]> {
+    const receipts = await this.repository.find({
+      where: { user_id },
+      skip,
+      take: limit
+    });
+
+    return receipts;
   }
 }
 
