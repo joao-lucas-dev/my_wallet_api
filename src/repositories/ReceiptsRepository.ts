@@ -5,7 +5,8 @@ import { Receipt } from '../entities/Receipt';
 interface IReceipt {
   operation: string;
   value: number;
-  user_id: string;
+  user_id?: string;
+  id?: string;
 }
 
 class ReceiptsRepository {
@@ -21,6 +22,22 @@ class ReceiptsRepository {
     await this.repository.save(receipt);
 
     return receipt;
+  }
+
+  findById(id: string): Promise<Receipt | undefined> {
+    const receipt = this.repository.findOne({
+      where: { id }
+    });
+
+    return receipt;
+  }
+
+  async update({ operation, value, id }: IReceipt): Promise<void> {
+    await this.repository.update({ id }, { operation, value });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.repository.delete({ id });
   }
 }
 
