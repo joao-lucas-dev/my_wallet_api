@@ -1,10 +1,15 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey
+} from 'typeorm';
 
-export class CreateUsers1624289923198 implements MigrationInterface {
+export class CreateReceipts1627234890174 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'users',
+        name: 'receipts',
         columns: [
           {
             name: 'id',
@@ -12,21 +17,16 @@ export class CreateUsers1624289923198 implements MigrationInterface {
             isPrimary: true
           },
           {
-            name: 'name',
+            name: 'user_id',
+            type: 'uuid'
+          },
+          {
+            name: 'operation',
             type: 'varchar'
           },
           {
-            name: 'email',
-            type: 'varchar',
-            isUnique: true
-          },
-          {
-            name: 'password',
-            type: 'varchar'
-          },
-          {
-            name: 'cpf',
-            type: 'varchar'
+            name: 'value',
+            type: 'float'
           },
           {
             name: 'created_at',
@@ -41,9 +41,20 @@ export class CreateUsers1624289923198 implements MigrationInterface {
         ]
       })
     );
+
+    await queryRunner.createForeignKey(
+      'receipts',
+      new TableForeignKey({
+        columnNames: ['user_id'],
+        referencedTableName: 'users',
+        referencedColumnNames: ['id'],
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
+      })
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('users');
+    await queryRunner.dropTable('receipts');
   }
 }
